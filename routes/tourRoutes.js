@@ -2,8 +2,10 @@ const express = require('express');
 
 const tourController = require('./../controllers/tourController');
 const router = express.Router();
+const authController = require('./../controllers/authController');
 
-router.param('id', tourController.checkID);
+//checks if the id of a tour exists
+//router.param('id', tourController.checkID);
 
 router.param('id', (req, res, next, val) => {
   console.log(`Tour id is: ${val}`);
@@ -11,13 +13,24 @@ router.param('id', (req, res, next, val) => {
 });
 
 router
+  .route('/top-5-cheap')
+  .get(tourController.aliasTopTours, tourController.getAllTours);
+
+router.route('/tour-stats').get(tourController.getTourStats);
+router.route('/monthly-plan/:year').get(tourController.getMonthlyPlan);
+
+router
   .route('/')
-  .get(tourController.getAllTours)
-  .post(tourController.checkBody, tourController.createTour);
+  .get(authController.protect, tourController.getAllTours)
+  .post(/* tourController.checkBody,  */ tourController.createTour);
 router
   .route('/:id')
   .get(tourController.getTourById)
   .patch(tourController.updateTour)
-  .delete(tourController.deleteTour);
+  .delete(
+    authController.protect,
+    authController.restrictTo('admin'),
+    tourController.deleteTour
+  );
 
 module.exports = router;
