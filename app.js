@@ -1,9 +1,14 @@
+//app
 const express = require('express');
 
 const { get } = require('http');
 const morgan = require('morgan');
+const rateLimit = require('express-rate-limit');
+const helmet = require('helmet');
 
 const app = express();
+//security HTTP headers
+app.use(helmet());
 
 const tourRouter = require('./routes/tourRoutes');
 const userRouter = require('./routes/userRoutes');
@@ -11,11 +16,27 @@ const userRouter = require('./routes/userRoutes');
 const appError = require('./utils/appError');
 const globalErrorHandler = require('./controllers/errorController');
 
-// Middleware
+// Global Middleware
+//development logging
 app.use(express.json());
 if (process.env.NODE_ENV === 'development') {
   app.use(morgan('dev'));
 }
+//Limits requests from same api
+const limiter = rateLimit({
+  max: 100,
+  windowMs: 60 * 60 * 1000,
+  message: 'Too many requests from this IP, please try again in an hour',
+});
+app.use('/api', limiter);
+
+//Body parser, reading data from body into req.body
+app.use(express.json({ limit: '10kb' }));
+//data sanitization againest Nosql query injection
+
+//data sanitization
+
+//serving static files
 app.use(express.static(`${__dirname}/public`));
 
 /* app.use((req, res, next) => {
@@ -23,6 +44,7 @@ app.use(express.static(`${__dirname}/public`));
   next();
 });
  */
+//test middleware
 app.use((req, res, next) => {
   req.requestTime = new Date().toISOString();
   next();
