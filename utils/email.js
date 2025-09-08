@@ -7,7 +7,7 @@ const sendEmail = async (options) => {
     //sending emails using gmail(theres a limit to 500 a day)
     /* service: 'gmail',
     auth: {
-      user: 'leonc8525@gmail.com',
+      user: '@gmail.com',
       pass: 'the',
     }, */
     //activate in gmail "less secure app" option

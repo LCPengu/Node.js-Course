@@ -5,6 +5,8 @@ const { get } = require('http');
 const morgan = require('morgan');
 const rateLimit = require('express-rate-limit');
 const helmet = require('helmet');
+const mongoSan = require('express-mongo-sanitize');
+const xss = require('xss-clean');
 
 const app = express();
 //security HTTP headers
@@ -33,9 +35,9 @@ app.use('/api', limiter);
 //Body parser, reading data from body into req.body
 app.use(express.json({ limit: '10kb' }));
 //data sanitization againest Nosql query injection
-
-//data sanitization
-
+app.use(mongoSan());
+//data sanitization againest xss
+app.use(xss());
 //serving static files
 app.use(express.static(`${__dirname}/public`));
 
